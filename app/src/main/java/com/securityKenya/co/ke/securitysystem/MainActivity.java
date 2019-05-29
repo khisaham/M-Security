@@ -4,6 +4,7 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -15,7 +16,9 @@ import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -30,6 +33,7 @@ import android.widget.EditText;
 import com.android.volley.VolleyError;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,6 +49,8 @@ public class MainActivity extends AppCompatActivity
     private String lng, lat;
     private boolean dataSent = false;
     private String TAG = "MAIN";
+    String wantPermission = Manifest.permission.READ_PHONE_STATE;
+    private static final int PERMISSION_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +63,13 @@ public class MainActivity extends AppCompatActivity
         //get phone number and simcard_serial_number
         if (Permissions.check(this, Manifest.permission.READ_PHONE_STATE)) {
             simCardSnNumber = Device.getSimCardSN(this);
-            internalPhoneNumber = Device.getPhoneNumber(this);
+           // internalPhoneNumber = Device.getPhoneNumber(this);
+        }
+        if (!checkPermission(wantPermission)) {
+            requestPermission(wantPermission);
+        } else {
+            Log.d(TAG, "Phone number: " + getPhone());
+            internalPhoneNumber = getPhone();
         }
 
         //get location service which is a system service
@@ -113,11 +125,11 @@ public class MainActivity extends AppCompatActivity
         actionCriminal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendData("0715909266","092929292992929",lat+":"+lng);
+               // sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng);
                 if(simCardSnNumber==null){
                     Snackbar.make(view, "Please insert a sim card in your phone", Snackbar.LENGTH_LONG).setAction("Action",null).show();
                 }else{
-
+                    sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng);
                 }
             }
         });
@@ -125,9 +137,12 @@ public class MainActivity extends AppCompatActivity
         actionEmergency.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendData("0715909266","092929292992929","2182:2912919");
-                Snackbar.make(view, "Your Location is not enabled "+lng+"  "+lat+"  "+internalPhoneNumber+"  "+simCardSnNumber, Snackbar.LENGTH_LONG).setAction("Action",null).show();
-            }
+                if(simCardSnNumber==null){
+                    Snackbar.make(view, "Please insert a sim card in your phone", Snackbar.LENGTH_LONG).setAction("Action",null).show();
+                }else{
+                    sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng);
+                }
+                      }
         });
 
 
@@ -285,5 +300,30 @@ private void sendData(String phoneNumber, String simCardSN, String cordonates) {
     }
 }
 
+    private String getPhone() {
+        TelephonyManager phoneMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, wantPermission) != PackageManager.PERMISSION_GRANTED) {
+            return "";
+        }
+        return phoneMgr.getLine1Number();
+    }
 
+    private void requestPermission(String permission){
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)){
+            Toast.makeText(this, "Phone state permission allows us to get phone number. Please allow it for additional functionality.", Toast.LENGTH_LONG).show();
+        }
+        ActivityCompat.requestPermissions(this, new String[]{permission},PERMISSION_REQUEST_CODE);
+    }
+    private boolean checkPermission(String permission){
+        if (Build.VERSION.SDK_INT >= 23) {
+            int result = ContextCompat.checkSelfPermission(this, permission);
+            if (result == PackageManager.PERMISSION_GRANTED){
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    }
 }

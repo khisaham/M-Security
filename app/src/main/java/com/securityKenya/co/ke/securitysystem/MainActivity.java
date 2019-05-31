@@ -7,6 +7,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,6 +21,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -31,6 +33,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import com.android.volley.VolleyError;
+
+import android.widget.GridLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Toast;
@@ -41,7 +45,7 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private EditText simpleText;
-    private CardView actionEmergency, actionInsecurity, actionCriminal;
+    private CardView actionEmergency, actionAccident, actionCriminal;
     private String simCardSnNumber = null, internalPhoneNumber = null;
     private boolean cancel = false;
     private LocationManager locationManager;
@@ -56,6 +60,16 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//        GridLayout g = (GridLayout)findViewById(R.id.gridlayout);
+//        int screenWidth = getScreenWidth();
+//        int cellWidth = screenWidth / 4;
+//        int margin = cellWidth / 8;
+//        GridLayout.LayoutParams p;
+//        for(int i = 0; i < g.getChildCount(); i++){
+//            p = (GridLayout.LayoutParams)g.getChildAt(i).getLayoutParams();
+//            p.width = cellWidth;
+//            p.setMargins(margin, margin, margin, margin);
+//        }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -112,6 +126,8 @@ public class MainActivity extends AppCompatActivity
         locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
 
 
+
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,31 +137,14 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        actionCriminal = (CardView) findViewById(R.id.action_crime_alert);
-        actionCriminal.setOnClickListener(new View.OnClickListener() {
+        CardView actionAccidentAlert = (CardView) findViewById(R.id.action_accident_alert);
+        actionAccidentAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               // sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng);
-                if(simCardSnNumber==null){
-                    Snackbar.make(view, "Please insert a sim card in your phone", Snackbar.LENGTH_LONG).setAction("Action",null).show();
-                }else{
-                    sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng);
-                }
+                Snackbar.make(view, "Phone:"+internalPhoneNumber+" SimcardSerialN:"+simCardSnNumber+" cord:"+lat+":"+lng, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
             }
         });
-        actionEmergency = (CardView) findViewById(R.id.action_emergency_alert);
-        actionEmergency.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(simCardSnNumber==null){
-                    Snackbar.make(view, "Please insert a sim card in your phone", Snackbar.LENGTH_LONG).setAction("Action",null).show();
-                }else{
-                    sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng);
-                }
-                      }
-        });
-
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -156,7 +155,12 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
-
+    private int getScreenWidth(){
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        return  size.x;
+    }
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

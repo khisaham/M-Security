@@ -26,15 +26,14 @@ import org.json.JSONObject;
 
 public class HTTP {
     private static final String TAG = "HTTP";
-    public static final String EP_RIDER_POSITION = "rider_position";
-    public static final String EP_SEND_DATA = "rider_app_login";
-    public static final String EP_REJECT_DELIVERY = "rider_app_reject";
-
+    public static final String EP_LOGIN_APP = "customer_login";
+    public static final String EP_SEND_DATA = "send_data";
+    public static final String EP_REGISTER = "register_new_customer";
 
     public static final int TUMAXPRESS_SOCKET_PORT = 8992;
     public static final int DEFAULT_TIMEOUT = 60000;
-    public static final String TUMAXPRESS_HOST = "35.189.76.21";
-    public static final String URI_IMG_STORE = "http://tumaxpress.com/parcel/doc/photo/";
+    public static final String TUMAXPRESS_HOST = "34.66.51.110";
+    public static final String URI_IMG_STORE = "http://http://34.66.51.110//parcel/doc/photo/";
     public static final int TUMAXPRESS_API_PORT = 8080;
     public static final String TUMAXPRESS_API_PROTOCOL = "http";
 

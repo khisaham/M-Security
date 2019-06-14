@@ -42,10 +42,9 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MainActivity extends AppCompatActivity
+public class DashboardActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     private EditText simpleText;
-    private CardView actionEmergency, actionAccident, actionCriminal;
     private String simCardSnNumber = null, internalPhoneNumber = null;
     private boolean cancel = false;
     private LocationManager locationManager;
@@ -77,14 +76,11 @@ public class MainActivity extends AppCompatActivity
         //get phone number and simcard_serial_number
         if (Permissions.check(this, Manifest.permission.READ_PHONE_STATE)) {
             simCardSnNumber = Device.getSimCardSN(this);
-           // internalPhoneNumber = Device.getPhoneNumber(this);
+            internalPhoneNumber = Device.getPhoneNumber(this);
+            Log.w(TAG, simCardSnNumber+"   "+internalPhoneNumber);
         }
-        if (!checkPermission(wantPermission)) {
-            requestPermission(wantPermission);
-        } else {
-            Log.d(TAG, "Phone number: " + getPhone());
-            internalPhoneNumber = getPhone();
-        }
+
+
 
         //get location service which is a system service
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -93,7 +89,7 @@ public class MainActivity extends AppCompatActivity
             public void onLocationChanged(Location location) {
             lng = String.valueOf(location.getLongitude());
             lat = String.valueOf(location.getLatitude());
-                Log.w("Cord", lng+"   --- "+lat);
+                Log.w("Cordinates ", lng+"   --- "+lat);
             }
 
             @Override
@@ -132,6 +128,7 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d("SAMPLE DATA:",internalPhoneNumber+" "+simCardSnNumber+" "+lat+" "+lng+" ");
                 Snackbar.make(view, "You cannot Send Custom Message now", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -141,8 +138,43 @@ public class MainActivity extends AppCompatActivity
         actionAccidentAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Phone:"+internalPhoneNumber+" SimcardSerialN:"+simCardSnNumber+" cord:"+lat+":"+lng, Snackbar.LENGTH_LONG)
+//                if(sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng)=null){
+//
+//                }
+              //  Snackbar.make(view, "Phone:"+internalPhoneNumber+" SimcardSerialN:"+simCardSnNumber+" cord:"+lat+":"+lng, Snackbar.LENGTH_LONG)
+                //        .setAction("Action", null).show();
+                Log.d("SAMPLE DATA:",internalPhoneNumber+" "+simCardSnNumber+" "+lat+" "+lng+" ");
+                Snackbar.make(view, "Alert Sent Successfully", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+                //sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng);
+            }
+        });
+        CardView actionCrime = (CardView) findViewById(R.id.action_crime_alert);
+        actionCrime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("SAMPLE DATA:",internalPhoneNumber+" "+simCardSnNumber+" "+lat+" "+lng+" ");
+                Snackbar.make(view, "Alert Sent Successfully", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                //sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng);
+            }
+        });
+        CardView actionEmergency = (CardView) findViewById(R.id.action_emergency_alert);
+        actionEmergency.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Alert Sent Successfully", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                //sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng); action_donate_organ_alert
+            }
+        });
+        CardView actionDonate = (CardView) findViewById(R.id.action_donate_organ_alert);
+        actionDonate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Alert Sent Successfully", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                //sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng); action_donate_organ_alert
             }
         });
 
@@ -256,10 +288,12 @@ public class MainActivity extends AppCompatActivity
 //            loginSV.setVisibility(show ? View.GONE : View.VISIBLE);
 //        }
 //    }
-private void sendData(String phoneNumber, String simCardSN, String cordonates) {
+private String sendData(String phoneNumber, String simCardSN, String cordonates) {
+    final JSONObject finalResponse = new JSONObject();
     if(dataSent == false) {
         dataSent = true;
         JSONObject request = new JSONObject();
+
         try {
             request.put("phone_number", phoneNumber);
             request.put("sim_card_sn", simCardSN);
@@ -271,12 +305,12 @@ private void sendData(String phoneNumber, String simCardSN, String cordonates) {
                     Log.d(TAG,"Hamphrey started:"+response);
                     try {
                         if (response.getBoolean("status") == false) {
-                            String reason = response.getString("reason");
-                            Snackbar.make(simpleText, reason, Snackbar.LENGTH_LONG).show();
+                            finalResponse.put("reason",response.getString("reason"));
+                            Snackbar.make(simpleText, response.getString("reason"), Snackbar.LENGTH_LONG).show();
                             Log.d(TAG,response.toString());
                         } else {
                             if (response.getBoolean("status") == true) {
-
+                                Snackbar.make(simpleText, "alert sent successfully", Snackbar.LENGTH_LONG).show();
                             } else {
                                 Snackbar.make(simpleText, "Could not load your data. Please contact the rider team", Snackbar.LENGTH_LONG).show();
                             }
@@ -302,6 +336,7 @@ private void sendData(String phoneNumber, String simCardSN, String cordonates) {
             e.printStackTrace();
         }
     }
+    return finalResponse.toString();
 }
 
     private String getPhone() {

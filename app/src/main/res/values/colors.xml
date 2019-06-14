@@ -6,4 +6,10 @@
     <color name="blue">#0F3DB1</color>
     <color name="red">#EC0707</color>
     <color name="white">#F8F7F7</color>
+    <color name="LightGrey">#D5D3C6</color>
+    <color name="tumaxpressOrange">#FF9800</color>
+    <color name="ghost_white">#EDF3F3</color>
+    <color name="orange">#FF9800</color>
+    <color name="green">#4CAF50</color>
+    <color name="background">#864CAF50</color>
 </resources>

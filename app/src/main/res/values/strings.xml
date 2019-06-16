@@ -24,7 +24,11 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing phone number completions."
     </string>
     <string name="version_sv">Please wait ...</string>
-
     <string name="action_register">Register</string>
     <string name="prompt_fullnames">Full Names</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_dashboard">DashboardActivity</string>
 </resources>

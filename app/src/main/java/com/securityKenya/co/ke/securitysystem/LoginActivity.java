@@ -5,7 +5,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,7 +38,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText phoneNumberET, idNumberET;
     private TextView versionTV;
-    private Button loginB, registerButton;
+    private Button loginB;
+    private TextView registerButton;
     private ProgressBar loginPB;
     private ScrollView loginSV;
     private boolean dataSent = false;
@@ -49,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
-        phoneNumberET = (EditText) findViewById(R.id.phone_number);
+        phoneNumberET = (EditText) findViewById(R.id.input_phone_number);
         if(Permissions.check(this, Manifest.permission.READ_PHONE_STATE)) {
             String phoneNumber = Device.getPhoneNumber(this);
             if(phoneNumber != null) {
@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
 
-        idNumberET = (EditText) findViewById(R.id.password);
+        idNumberET = (EditText) findViewById(R.id.input_password);
         idNumberET.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -77,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        registerButton = (Button) findViewById(R.id.register_btn);
+        registerButton = (TextView) findViewById(R.id.link_signup);
         registerButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -219,20 +219,18 @@ public class LoginActivity extends AppCompatActivity {
                 HTTP.sendRequest(this, HTTP.EP_LOGIN_APP, request, new HTTP.OnHTTPResponseListener() {
                     @Override
                     public void onHTTPResponse(JSONObject response) {
-                        Log.d(TAG,"Hamphrey:"+response);
+                        Log.w(TAG,"Hamphrey:"+response.toString());
                         try {
-                            if (response.getBoolean("status") == false) {
-                                String reason = response.getString("reason");
-                                Snackbar.make(idNumberET, reason, Snackbar.LENGTH_LONG).show();
-                                idNumberET.setVisibility(View.VISIBLE);
-                                Log.d(TAG,response.toString());
-                            } else {
-                                if (response.getBoolean("rider_data_status") == true) {
-                                    Log.d(TAG, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-                                } else {
-                                    Snackbar.make(idNumberET, "Could not load your data. Please contact the rider team", Snackbar.LENGTH_LONG).show();
-                                }
+                            if(response.getBoolean("status")==true){
+                                Log.w(TAG," Response: "+response.toString());
+                                Intent myIntent = new Intent(LoginActivity.this, DashboardActivity.class);
+                                LoginActivity.this.startActivity(myIntent);
+                            }else{
+                                Log.w(TAG," Response: "+response.toString());
+                                Snackbar.make(idNumberET, "Phone-Number/Password Mismatch ", Snackbar.LENGTH_INDEFINITE).show();
+                                response.getBoolean("status");
                             }
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                             Log.d(TAG, e.toString());

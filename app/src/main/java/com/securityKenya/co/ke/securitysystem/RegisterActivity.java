@@ -6,16 +6,20 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 
@@ -24,57 +28,65 @@ import org.json.JSONObject;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private static Button signInButton;
-    private EditText phone_number, full_names, sim_crad_sn,passwordText;
-    private ScrollView loginSV;
-    private boolean dataSent = false;
+    private Button registerNewUser;
+    private TextView signInAgain;
+    private AutoCompleteTextView firstNameText, lastNameText, phoneNumberET;
+    private EditText passwordText;
     private ProgressBar loginPB;
-    private Button sign_up;
-    private String TAG = "REGISTER";
+    private ScrollView loginSV;
+    private String TAG = "REG:";
+    private boolean dataSent = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        phone_number = (EditText) findViewById(R.id.phone_number);
-        if(Permissions.check(this, Manifest.permission.READ_PHONE_STATE)) {
-            String phoneNumber = Device.getPhoneNumber(this);
-            if(phoneNumber != null) {
-                phone_number.setText(phoneNumber);
-            }
-        }
-        full_names = (EditText)findViewById(R.id.full_names);
-        passwordText = (EditText)findViewById(R.id.password);
 
-        loginSV = (ScrollView)findViewById(R.id.login_form);
-        loginPB = (ProgressBar)findViewById(R.id.login_progress);
-
-        signInButton = (Button) findViewById(R.id.register_btn);
-        signInButton.setOnClickListener(new View.OnClickListener() {
+        signInAgain = (TextView) findViewById(R.id.sign_in_again);
+        signInAgain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent myIntent = new Intent(RegisterActivity.this, LoginActivity.class);
                 RegisterActivity.this.startActivity(myIntent);
             }
         });
+
+        registerNewUser = (Button) findViewById(R.id.email_register_in_button);
+        registerNewUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               attemptSignup();
+            }
+        });
+
+        firstNameText = (AutoCompleteTextView)findViewById(R.id.first_name);
+        lastNameText = (AutoCompleteTextView)findViewById(R.id.last_name);
+        phoneNumberET = (AutoCompleteTextView)findViewById(R.id.phone_number);
+
+        passwordText = (EditText)findViewById(R.id.password);
+
+
+        loginSV = (ScrollView)findViewById(R.id.register_form);
+        loginPB = (ProgressBar)findViewById(R.id.register_progress);
     }
 
-    private void attemptSignUp() {
+    private void attemptSignup() {
         /*if (userLoginTask != null) {
             Snackbar.make(idNumberET, "Please wait...", Snackbar.LENGTH_LONG).show();
             return;
         }*/
 
         // Reset errors.
-        phone_number.setError(null);
+        phoneNumberET.setError(null);
         passwordText.setError(null);
-        full_names.setError(null);
 
-        // Store values at the time of the registration attempt.
-        String phoneNumber = phone_number.getText().toString();
-        String password = passwordText.getText().toString();
-        String fullNames = full_names.getText().toString();
-
+        // Store values at the time of the login attempt.
+        String phoneNumber = phoneNumberET.getText().toString();
+        String passWord = passwordText.getText().toString();
+        String firstname = firstNameText.getText().toString();
+        String lastname = lastNameText.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
@@ -84,33 +96,50 @@ public class RegisterActivity extends AppCompatActivity {
         }
         if(simCardSN == null) {
             cancel = true;
-            Snackbar.make(passwordText, "You will need a simcard to sign in", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(phoneNumberET, "You will need a simcard to sign in", Snackbar.LENGTH_LONG).show();
         }
 
         if(cancel == false) {//first things first, make sure the simcard is accessible first
             if(passwordText.getVisibility() == View.VISIBLE) {
-                if (TextUtils.isEmpty(password)) {
+                if (TextUtils.isEmpty(passWord)) {
+                    passwordText.setError(getString(R.string.error_invalid_phone_number));
+                    focusView = passwordText;
+                    cancel = true;
+                } else if(!isIdNumberValid(passWord)) {
                     passwordText.setError(getString(R.string.error_incorrect_password));
                     focusView = passwordText;
                     cancel = true;
                 }
             } else {
-                password = null;
+                passWord = null;
             }
 
             if (TextUtils.isEmpty(phoneNumber)) {
-                phone_number.setError(getString(R.string.error_invalid_phone_number));
-                focusView = phone_number;
+                phoneNumberET.setError(getString(R.string.error_invalid_phone_number));
+                focusView = phoneNumberET;
+                cancel = true;
+            } else if (!isPhoneNumberValid(phoneNumber)) {
+                phoneNumberET.setError(getString(R.string.error_incorrect_password));
+                focusView = phoneNumberET;
                 cancel = true;
             }
 
             if(cancel == false) {
                 showProgress(true);
-                sendData(phoneNumber, simCardSN, password, fullNames);
+                Log.d(TAG,phoneNumber+"  "+passWord+" "+simCardSN);
+                sendData(phoneNumber, simCardSN, passWord, firstname, lastname);
             } else {
                 focusView.requestFocus();
             }
         }
+    }
+
+    private boolean isPhoneNumberValid(String phoneNumber) {
+        return phoneNumber.length() > 8;
+    }
+
+    private boolean isIdNumberValid(String idNo) {
+        return idNo.length() > 3;
     }
 
     /**
@@ -149,57 +178,51 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
-
-    private void sendData(String phoneNumber, String simCardSN, String idNumber, String full_names) {
-        if(dataSent == false) {
+    private void sendData(String phoneNumber, String simCardSN, String password, String firstname, String lastname) {
+        if (dataSent == false) {
             dataSent = true;
-            sign_up.setClickable(false);
+            registerNewUser.setClickable(false);
             JSONObject request = new JSONObject();
             try {
                 request.put("phone_number", phoneNumber);
-                request.put("username", simCardSN);
-                request.put("first_name", full_names);
-                request.put("last_name", full_names);
-                request.put("id_number", phoneNumber);
-                request.put("pin", passwordText);
-                if (idNumber != null) {
-                    request.put("id_no", idNumber);
-                }
+                request.put("pin", password);
+                request.put("surname", firstname);
+                request.put("first_name", firstname);
+                request.put("last_name", lastname);
+                request.put("id_number", simCardSN);
+
                 HTTP.sendRequest(this, HTTP.EP_REGISTER, request, new HTTP.OnHTTPResponseListener() {
                     @Override
                     public void onHTTPResponse(JSONObject response) {
-                        Log.d(TAG,"Hamphrey started:"+response);
+                        Log.w(TAG, "Hamphrey:" + response.toString());
                         try {
-                            if (response.getBoolean("status") == false) {
-                                String reason = response.getString("reason");
-                                Snackbar.make(phone_number, reason, Snackbar.LENGTH_LONG).show();
-                                phone_number.setVisibility(View.VISIBLE);
-                                Log.d(TAG,response.toString());
+                            if (response.getBoolean("status") == true) {
+                                Log.w(TAG, " Response: " + response.toString());
+                                Intent myIntent = new Intent(RegisterActivity.this, LoginActivity.class);
+                                RegisterActivity.this.startActivity(myIntent);
                             } else {
-                                if (response.getBoolean("rider_data_status") == true) {
-
-                                    Log.d(TAG, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-                                } else {
-                                    Snackbar.make(phone_number, "Could not load your data. Please contact the rider team", Snackbar.LENGTH_LONG).show();
-                                }
+                                Log.w(TAG, " Response: " + response.toString());
+                                Snackbar.make(firstNameText, "Error creatng New User ", Snackbar.LENGTH_INDEFINITE).show();
+                                response.getBoolean("status");
                             }
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                             Log.d(TAG, e.toString());
-                            Snackbar.make(phone_number, "Sorry, something went wrong. Please try again", Snackbar.LENGTH_LONG).show();
+                            Snackbar.make(firstNameText, "Sorry, something went wrong. Please try again", Snackbar.LENGTH_LONG).show();
                         }
                         dataSent = false;
-                        sign_up.setClickable(true);
+                        registerNewUser.setClickable(true);
                         showProgress(false);
                     }
 
                     @Override
                     public void onHTTPError(VolleyError volleyError) {
                         dataSent = false;
-                        sign_up.setClickable(true);
+                        registerNewUser.setClickable(true);
                         showProgress(false);
                         Log.d(TAG, volleyError.toString());
-                        Snackbar.make(phone_number, "Sorry, something went wrong. Please try again", Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(firstNameText, "Sorry, something went wrong. Please try again", Snackbar.LENGTH_LONG).show();
                     }
                 });
             } catch (JSONException e) {
@@ -207,4 +230,5 @@ public class RegisterActivity extends AppCompatActivity {
             }
         }
     }
+
 }

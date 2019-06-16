@@ -1,27 +1,8 @@
 package com.securityKenya.co.ke.securitysystem;
 
-import android.Manifest;
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Point;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.CardView;
-import android.telephony.TelephonyManager;
-import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -31,150 +12,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
-import com.android.volley.VolleyError;
-
-import android.widget.GridLayout;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
-import android.widget.Toast;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class DashboardActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-    private EditText simpleText;
-    private String simCardSnNumber = null, internalPhoneNumber = null;
-    private boolean cancel = false;
-    private LocationManager locationManager;
-    private LocationListener locationListener;
-    private String lng, lat;
-    private boolean dataSent = false;
-    private String TAG = "MAIN";
-    String wantPermission = Manifest.permission.READ_PHONE_STATE;
-    private static final int PERMISSION_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-//        GridLayout g = (GridLayout)findViewById(R.id.gridlayout);
-//        int screenWidth = getScreenWidth();
-//        int cellWidth = screenWidth / 4;
-//        int margin = cellWidth / 8;
-//        GridLayout.LayoutParams p;
-//        for(int i = 0; i < g.getChildCount(); i++){
-//            p = (GridLayout.LayoutParams)g.getChildAt(i).getLayoutParams();
-//            p.width = cellWidth;
-//            p.setMargins(margin, margin, margin, margin);
-//        }
+        setContentView(R.layout.activity_dashboard);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
-        //get phone number and simcard_serial_number
-        if (Permissions.check(this, Manifest.permission.READ_PHONE_STATE)) {
-            simCardSnNumber = Device.getSimCardSN(this);
-            internalPhoneNumber = Device.getPhoneNumber(this);
-            Log.w(TAG, simCardSnNumber+"   "+internalPhoneNumber);
-        }
-
-
-
-        //get location service which is a system service
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-            lng = String.valueOf(location.getLongitude());
-            lat = String.valueOf(location.getLatitude());
-                Log.w("Cordinates ", lng+"   --- "+lat);
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(intent);
-
-            }
-        };
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String []{
-                    Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.INTERNET
-                },10);
-            return;
-        }
-        }else{
-
-        }
-        locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
-
-
-
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("SAMPLE DATA:",internalPhoneNumber+" "+simCardSnNumber+" "+lat+" "+lng+" ");
-                Snackbar.make(view, "You cannot Send Custom Message now", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-            }
-        });
-
-        CardView actionAccidentAlert = (CardView) findViewById(R.id.action_accident_alert);
-        actionAccidentAlert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                if(sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng)=null){
-//
-//                }
-              //  Snackbar.make(view, "Phone:"+internalPhoneNumber+" SimcardSerialN:"+simCardSnNumber+" cord:"+lat+":"+lng, Snackbar.LENGTH_LONG)
-                //        .setAction("Action", null).show();
-                Log.d("SAMPLE DATA:",internalPhoneNumber+" "+simCardSnNumber+" "+lat+" "+lng+" ");
-                Snackbar.make(view, "Alert Sent Successfully", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                //sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng);
-            }
-        });
-        CardView actionCrime = (CardView) findViewById(R.id.action_crime_alert);
-        actionCrime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("SAMPLE DATA:",internalPhoneNumber+" "+simCardSnNumber+" "+lat+" "+lng+" ");
-                Snackbar.make(view, "Alert Sent Successfully", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                //sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng);
-            }
-        });
-        CardView actionEmergency = (CardView) findViewById(R.id.action_emergency_alert);
-        actionEmergency.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Alert Sent Successfully", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                //sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng); action_donate_organ_alert
-            }
-        });
-        CardView actionDonate = (CardView) findViewById(R.id.action_donate_organ_alert);
-        actionDonate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Alert Sent Successfully", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                //sendData(internalPhoneNumber,simCardSnNumber,lat+":"+lng); action_donate_organ_alert
             }
         });
 
@@ -187,12 +41,7 @@ public class DashboardActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
-    private int getScreenWidth(){
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        return  size.x;
-    }
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -206,7 +55,7 @@ public class DashboardActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.dashboard, menu);
         return true;
     }
 
@@ -233,136 +82,20 @@ public class DashboardActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             // Handle the camera action
-            Snackbar.make(simpleText,"Error 500: Server Problem", Snackbar.LENGTH_LONG).show();
         } else if (id == R.id.nav_gallery) {
-            Snackbar.make(simpleText,"Error 500: Server Problem", Snackbar.LENGTH_LONG).show();
 
-        } //else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_slideshow) {
 
-//        } else? if (id == R.id.nav_manage) {
-//
-        //}
-        else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_manage) {
 
-        } //else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_share) {
 
-        //}
+        } else if (id == R.id.nav_send) {
+
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-//
-//    /**
-//     * Shows the progress UI and hides the login form.
-//     */
-//    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-//    private void showProgress(final boolean show) {
-//        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-//        // for very easy animations. If available, use these APIs to fade-in
-//        // the progress spinner.
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-//            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-//
-//            loginSV.setVisibility(show ? View.GONE : View.VISIBLE);
-//            loginSV.animate().setDuration(shortAnimTime).alpha(
-//                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-//                @Override
-//                public void onAnimationEnd(Animator animation) {
-//                    loginSV.setVisibility(show ? View.GONE : View.VISIBLE);
-//                }
-//            });
-//
-//            loginPB.setVisibility(show ? View.VISIBLE : View.GONE);
-//            loginPB.animate().setDuration(shortAnimTime).alpha(
-//                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-//                @Override
-//                public void onAnimationEnd(Animator animation) {
-//                    loginPB.setVisibility(show ? View.VISIBLE : View.GONE);
-//                }
-//            });
-//        } else {
-//            // The ViewPropertyAnimator APIs are not available, so simply show
-//            // and hide the relevant UI components.
-//            loginPB.setVisibility(show ? View.VISIBLE : View.GONE);
-//            loginSV.setVisibility(show ? View.GONE : View.VISIBLE);
-//        }
-//    }
-private String sendData(String phoneNumber, String simCardSN, String cordonates) {
-    final JSONObject finalResponse = new JSONObject();
-    if(dataSent == false) {
-        dataSent = true;
-        JSONObject request = new JSONObject();
-
-        try {
-            request.put("phone_number", phoneNumber);
-            request.put("sim_card_sn", simCardSN);
-            request.put("cordinates", cordonates);
-
-            HTTP.sendRequest(this, HTTP.EP_SEND_DATA, request, new HTTP.OnHTTPResponseListener() {
-                @Override
-                public void onHTTPResponse(JSONObject response) {
-                    Log.d(TAG,"Hamphrey started:"+response);
-                    try {
-                        if (response.getBoolean("status") == false) {
-                            finalResponse.put("reason",response.getString("reason"));
-                            Snackbar.make(simpleText, response.getString("reason"), Snackbar.LENGTH_LONG).show();
-                            Log.d(TAG,response.toString());
-                        } else {
-                            if (response.getBoolean("status") == true) {
-                                Snackbar.make(simpleText, "alert sent successfully", Snackbar.LENGTH_LONG).show();
-                            } else {
-                                Snackbar.make(simpleText, "Could not load your data. Please contact the rider team", Snackbar.LENGTH_LONG).show();
-                            }
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.d(TAG, e.toString());
-                        Snackbar.make(simpleText, "Sorry, something went wrong. Please try again", Snackbar.LENGTH_LONG).show();
-                    }
-                    dataSent = false;
-                   // showProgress(false);
-                }
-
-                @Override
-                public void onHTTPError(VolleyError volleyError) {
-                    dataSent = false;
-                   // showProgress(false);
-                    Log.d(TAG, volleyError.toString());
-                    Snackbar.make(simpleText, "Sorry, something went wrong. Please try again", Snackbar.LENGTH_LONG).show();
-                }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-    return finalResponse.toString();
-}
-
-    private String getPhone() {
-        TelephonyManager phoneMgr = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, wantPermission) != PackageManager.PERMISSION_GRANTED) {
-            return "";
-        }
-        return phoneMgr.getLine1Number();
-    }
-
-    private void requestPermission(String permission){
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)){
-            Toast.makeText(this, "Phone state permission allows us to get phone number. Please allow it for additional functionality.", Toast.LENGTH_LONG).show();
-        }
-        ActivityCompat.requestPermissions(this, new String[]{permission},PERMISSION_REQUEST_CODE);
-    }
-    private boolean checkPermission(String permission){
-        if (Build.VERSION.SDK_INT >= 23) {
-            int result = ContextCompat.checkSelfPermission(this, permission);
-            if (result == PackageManager.PERMISSION_GRANTED){
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return true;
-        }
     }
 }

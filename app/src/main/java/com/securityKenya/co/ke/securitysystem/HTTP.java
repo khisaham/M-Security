@@ -33,7 +33,7 @@ public class HTTP {
     public static final int TUMAXPRESS_SOCKET_PORT = 8992;
     public static final int DEFAULT_TIMEOUT = 60000;
     public static final String TUMAXPRESS_HOST = "34.66.51.110";
-    public static final String URI_IMG_STORE = "http://http://34.66.51.110//parcel/doc/photo/";
+    public static final String URI_IMG_STORE = "http://http://34.66.51.110/parcel/doc/photo/";
     public static final int TUMAXPRESS_API_PORT = 8080;
     public static final String TUMAXPRESS_API_PROTOCOL = "http";
 

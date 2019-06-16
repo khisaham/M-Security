@@ -11,5 +11,6 @@
     <color name="ghost_white">#EDF3F3</color>
     <color name="orange">#FF9800</color>
     <color name="green">#4CAF50</color>
-    <color name="background">#864CAF50</color>
+    <color name="background">#86C7EEC9</color>
+    <color name="background_dashboard">#6AE1F3E2</color>
 </resources>
